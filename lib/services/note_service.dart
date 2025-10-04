@@ -1,18 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/note.dart';
 
 class NoteService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final String collectionName = "notes";
 
-  // اختبار الاتصال بـ Firestore
+  // Test Firestore connection
   Future<bool> testConnection() async {
     try {
       print('Testing Firestore connection...');
-
-      // محاولة بسيطة للوصول للـ Firestore بدون query معقد
       await _db.settings;
-
       print('Firestore connection successful');
       return true;
     } catch (e) {
@@ -21,13 +20,23 @@ class NoteService {
     }
   }
 
+  // Get current user ID
+  String? get currentUserId => _auth.currentUser?.uid;
+
   Future<List<Note>> getAllNotes() async {
     try {
-      print('Getting all notes from collection: $collectionName');
+      // Check if user is authenticated
+      if (currentUserId == null) {
+        throw Exception('User not authenticated');
+      }
 
-      // محاولة الحصول على البيانات مع التعامل مع حالة الـ collection الفاضي
+      print('Getting notes for user: $currentUserId');
+      print('From collection: $collectionName');
+
+      // Get notes filtered by userId
       final snapshot = await _db
           .collection(collectionName)
+          .where('userId', isEqualTo: currentUserId)
           .orderBy("createdAt", descending: true)
           .get()
           .timeout(const Duration(seconds: 10));
@@ -36,8 +45,8 @@ class NoteService {
       print('Number of documents found: ${snapshot.docs.length}');
 
       if (snapshot.docs.isEmpty) {
-        print('No notes found in the collection');
-        return []; // إرجاع قائمة فارغة بدلاً من خطأ
+        print('No notes found for this user');
+        return [];
       }
 
       final notes = snapshot.docs
@@ -60,10 +69,9 @@ class NoteService {
       print('Error in getAllNotes: $e');
       print('Error type: ${e.runtimeType}');
 
-      // التعامل مع أخطاء مختلفة
       if (e.toString().contains('FAILED_PRECONDITION')) {
         print('Index not ready yet, returning empty list');
-        return []; // مؤقتاً حتى يتم إنشاء الـ index
+        return [];
       } else if (e.toString().contains('PERMISSION_DENIED')) {
         throw Exception('Permission denied. Check your Firestore security rules.');
       } else if (e.toString().contains('UNAVAILABLE')) {
@@ -76,6 +84,10 @@ class NoteService {
 
   Future<Note?> getNoteById(String id) async {
     try {
+      if (currentUserId == null) {
+        throw Exception('User not authenticated');
+      }
+
       print('Getting note by ID: $id');
 
       final doc = await _db
@@ -89,7 +101,15 @@ class NoteService {
         return null;
       }
 
-      return Note.fromJson({...doc.data()!, 'id': doc.id});
+      final note = Note.fromJson({...doc.data()!, 'id': doc.id});
+
+      // Verify the note belongs to the current user
+      if (note.userId != currentUserId) {
+        print('Access denied: Note does not belong to current user');
+        return null;
+      }
+
+      return note;
     } catch (e) {
       print('Error in getNoteById: $e');
       throw Exception('Failed to fetch note: $e');
@@ -98,15 +118,29 @@ class NoteService {
 
   Future<String?> addNote(Note note) async {
     try {
+      if (currentUserId == null) {
+        throw Exception('User not authenticated');
+      }
+
       print('=== Starting addNote ===');
       print('Note title: ${note.title}');
       print('Note content length: ${note.content.length}');
+      print('User ID: $currentUserId');
       print('Collection name: $collectionName');
 
-      final noteData = note.toJson();
+      // Ensure the note has the correct userId
+      final noteWithUserId = Note(
+        id: note.id,
+        title: note.title,
+        content: note.content,
+        createdAt: note.createdAt,
+        userId: currentUserId!,
+      );
+
+      final noteData = noteWithUserId.toJson();
       print('Note data to be saved: $noteData');
 
-      // اختبار الاتصال أولاً
+      // Test connection first
       final connectionOk = await testConnection();
       if (!connectionOk) {
         throw Exception('Unable to connect to database');
@@ -114,7 +148,7 @@ class NoteService {
 
       print('Connection test passed, attempting to add note...');
 
-      // إضافة الملاحظة
+      // Add the note
       final docRef = await _db
           .collection(collectionName)
           .add(noteData)
@@ -143,6 +177,15 @@ class NoteService {
 
   Future<void> updateNote(Note updatedNote) async {
     try {
+      if (currentUserId == null) {
+        throw Exception('User not authenticated');
+      }
+
+      // Verify the note belongs to the current user
+      if (updatedNote.userId != currentUserId) {
+        throw Exception('Access denied: Cannot update note belonging to another user');
+      }
+
       print('Starting to update note: ${updatedNote.id}');
 
       final noteData = updatedNote.toJson();
@@ -163,7 +206,17 @@ class NoteService {
 
   Future<void> deleteNote(String id) async {
     try {
+      if (currentUserId == null) {
+        throw Exception('User not authenticated');
+      }
+
       print('Starting to delete note: $id');
+
+      // First verify the note belongs to the current user
+      final note = await getNoteById(id);
+      if (note == null) {
+        throw Exception('Note not found or access denied');
+      }
 
       await _db
           .collection(collectionName)
@@ -178,7 +231,7 @@ class NoteService {
     }
   }
 
-  // طريقة إضافية للتأكد من وجود الـ collection
+  // Check if collection exists
   Future<bool> collectionExists() async {
     try {
       final snapshot = await _db
@@ -187,7 +240,7 @@ class NoteService {
           .get()
           .timeout(const Duration(seconds: 5));
 
-      return true; // إذا تم التنفيذ بدون خطأ، الـ collection موجود أو يمكن إنشاؤه
+      return true;
     } catch (e) {
       print('Error checking collection existence: $e');
       return false;

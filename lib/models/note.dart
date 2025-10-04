@@ -1,29 +1,32 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Note {
   final String id;
   final String title;
   final String content;
   final DateTime createdAt;
+  final String userId;
 
   Note({
     required this.id,
     required this.title,
     required this.content,
     required this.createdAt,
+    required this.userId,
   });
 
-  /// يحوّل الـ Note إلى Map لرفعه على Firestore
+  /// Converts the Note to Map for uploading to Firestore
   Map<String, dynamic> toJson() {
     return {
       'title': title,
       'content': content,
-      // Firestore بيفضل تخزين التاريخ كـ Timestamp
       'createdAt': Timestamp.fromDate(createdAt),
+      'userId': userId,
     };
   }
 
-  /// ينشئ Note من بيانات Firestore
+  /// Creates Note from Firestore data
   factory Note.fromJson(Map<String, dynamic> json) {
     final rawDate = json['createdAt'];
 
@@ -41,10 +44,11 @@ class Note {
       title: json['title'] ?? '',
       content: json['content'] ?? '',
       createdAt: dateTime,
+      userId: json['userId'] ?? '',
     );
   }
 
-  /// صيغة تاريخ مقروءة
+  /// Readable date format
   String get formattedDate {
     return '${createdAt.day.toString().padLeft(2, '0')}/'
         '${createdAt.month.toString().padLeft(2, '0')}/'
@@ -53,7 +57,7 @@ class Note {
         '${createdAt.minute.toString().padLeft(2, '0')}';
   }
 
-  /// يعرض أول 100 حرف فقط لو النص طويل
+  /// Shows only first 100 characters if content is long
   String get truncatedContent {
     if (content.length <= 100) return content;
     return '${content.substring(0, 100)}...';

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../controllers/note_controller.dart';
+import '../controllers/auth_controller.dart';
 import '../widgets/note_item.dart';
 import 'create_note_screen.dart';
 import 'note_details_screen.dart';
+import 'profile_screen.dart';
 
 class NotesListScreen extends StatefulWidget {
   const NotesListScreen({super.key});
@@ -12,28 +15,27 @@ class NotesListScreen extends StatefulWidget {
 }
 
 class _NotesListScreenState extends State<NotesListScreen> {
-  final NoteController _noteController = NoteController();
 
   @override
   void initState() {
     super.initState();
-    // Fixed: properly await the init method
-    _initController();
-  }
+    print('=== NotesListScreen initState ===');
+    // NoteController automatically loads notes via auth state listener
+    // But we can trigger a load just to be sure
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final noteController = context.read<NoteController>();
+      final authController = context.read<AuthController>();
 
-  Future<void> _initController() async {
-    try {
-      await _noteController.init();
-    } catch (e) {
-      print('Error initializing controller: $e');
-      // The error will be handled by the controller and shown in the UI
-    }
-  }
+      print('Current user: ${authController.currentUser?.uid}');
+      print('Notes count: ${noteController.notes.length}');
+      print('Is loading: ${noteController.isLoading}');
 
-  @override
-  void dispose() {
-    _noteController.dispose();
-    super.dispose();
+      // If notes are empty and not loading, trigger a load
+      if (noteController.notes.isEmpty && !noteController.isLoading) {
+        print('No notes found, triggering load...');
+        noteController.loadNotes();
+      }
+    });
   }
 
   @override
@@ -49,6 +51,44 @@ class _NotesListScreenState extends State<NotesListScreen> {
           ),
         ),
         centerTitle: true,
+        leading: Consumer<AuthController>(
+          builder: (context, authController, child) {
+            return IconButton(
+              icon: CircleAvatar(
+                radius: 16.0,
+                backgroundColor: const Color(0xFF00BCD4),
+                child: authController.currentUser?.photoURL != null
+                    ? ClipOval(
+                  child: Image.network(
+                    authController.currentUser!.photoURL!,
+                    width: 32.0,
+                    height: 32.0,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Text(
+                        authController.displayName[0].toUpperCase(),
+                        style: const TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      );
+                    },
+                  ),
+                )
+                    : Text(
+                  authController.displayName[0].toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              onPressed: () => _navigateToProfile(),
+            );
+          },
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -56,15 +96,22 @@ class _NotesListScreenState extends State<NotesListScreen> {
           ),
         ],
       ),
-      body: AnimatedBuilder(
-        animation: _noteController,
-        builder: (context, child) {
-          if (_noteController.isLoading) {
+      body: Consumer<NoteController>(
+        builder: (context, noteController, child) {
+          print('=== NotesListScreen Consumer Rebuilding ===');
+          print('Notes count: ${noteController.notes.length}');
+          print('Is loading: ${noteController.isLoading}');
+          print('Error: ${noteController.errorMessage}');
+          print('==========================================');
+
+          if (noteController.isLoading) {
             return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
+                  CircularProgressIndicator(
+                    color: Color(0xFF00BCD4),
+                  ),
                   SizedBox(height: 16.0),
                   Text(
                     'Loading notes...',
@@ -78,25 +125,24 @@ class _NotesListScreenState extends State<NotesListScreen> {
             );
           }
 
-          // Show error message if there's an error
-          if (_noteController.errorMessage != null) {
-            return _buildErrorState();
+          if (noteController.errorMessage != null) {
+            return _buildErrorState(noteController);
           }
 
-          if (_noteController.notes.isEmpty) {
+          if (noteController.notes.isEmpty) {
             return _buildEmptyState();
           }
 
           return RefreshIndicator(
             onRefresh: () async {
-              await _noteController.loadNotes();
+              await context.read<NoteController>().loadNotes();
             },
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: ListView.builder(
-                itemCount: _noteController.notes.length,
+                itemCount: noteController.notes.length,
                 itemBuilder: (context, index) {
-                  final note = _noteController.notes[index];
+                  final note = noteController.notes[index];
                   return NoteItem(
                     note: note,
                     onTap: () => _navigateToNoteDetails(note.id),
@@ -168,7 +214,7 @@ class _NotesListScreenState extends State<NotesListScreen> {
     );
   }
 
-  Widget _buildErrorState() {
+  Widget _buildErrorState(NoteController noteController) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -191,7 +237,7 @@ class _NotesListScreenState extends State<NotesListScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Text(
-              _noteController.errorMessage!,
+              noteController.errorMessage!,
               style: TextStyle(
                 fontSize: 14.0,
                 color: Colors.grey[500],
@@ -202,8 +248,8 @@ class _NotesListScreenState extends State<NotesListScreen> {
           const SizedBox(height: 24.0),
           ElevatedButton.icon(
             onPressed: () async {
-              _noteController.clearError();
-              await _noteController.loadNotes();
+              context.read<NoteController>().clearError();
+              await context.read<NoteController>().loadNotes();
             },
             icon: const Icon(Icons.refresh),
             label: const Text('Try Again'),
@@ -227,32 +273,29 @@ class _NotesListScreenState extends State<NotesListScreen> {
   Future<void> _navigateToCreateNote() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => CreateNoteScreen(
-          noteController: _noteController,
-        ),
+        builder: (context) => const CreateNoteScreen(),
       ),
     );
-
-    // Refresh the notes list when returning from create screen
-    // This ensures newly created notes are visible
-    if (mounted) {
-      await _noteController.refreshNotes();
-    }
   }
 
   void _navigateToNoteDetails(String noteId) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => NoteDetailsScreen(
-          noteId: noteId,
-          noteController: _noteController,
-        ),
+        builder: (context) => NoteDetailsScreen(noteId: noteId),
+      ),
+    );
+  }
+
+  void _navigateToProfile() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const ProfileScreen(),
       ),
     );
   }
 
   Future<void> _deleteNote(String noteId) async {
-    final success = await _noteController.deleteNote(noteId);
+    final success = await context.read<NoteController>().deleteNote(noteId);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

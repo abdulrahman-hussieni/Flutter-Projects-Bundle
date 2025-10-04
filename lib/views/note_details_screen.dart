@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../controllers/note_controller.dart';
 import '../models/note.dart';
 
 class NoteDetailsScreen extends StatefulWidget {
   final String noteId;
-  final NoteController noteController;
 
   const NoteDetailsScreen({
     super.key,
     required this.noteId,
-    required this.noteController,
   });
 
   @override
@@ -40,7 +39,7 @@ class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
   }
 
   void _loadNote() {
-    _note = widget.noteController.getNoteById(widget.noteId);
+    _note = context.read<NoteController>().getNoteById(widget.noteId);
     if (_note != null) {
       _titleController.text = _note!.title;
       _contentController.text = _note!.content;
@@ -322,7 +321,9 @@ class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
       return;
     }
 
-    final success = await widget.noteController.updateNote(
+    final noteController = context.read<NoteController>();
+
+    final success = await noteController.updateNote(
       widget.noteId,
       _titleController.text,
       _contentController.text,

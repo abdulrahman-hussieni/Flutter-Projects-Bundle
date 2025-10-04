@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../controllers/note_controller.dart';
 
 class CreateNoteScreen extends StatefulWidget {
-  final NoteController noteController;
-
-  const CreateNoteScreen({
-    super.key,
-    required this.noteController,
-  });
+  const CreateNoteScreen({super.key});
 
   @override
   State<CreateNoteScreen> createState() => _CreateNoteScreenState();
@@ -191,10 +187,12 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
   }
 
   Future<void> _saveNote() async {
-    // مسح أي أخطاء سابقة
-    widget.noteController.clearError();
+    final noteController = context.read<NoteController>();
 
-    // التحقق من صحة البيانات
+    // Clear any previous errors
+    noteController.clearError();
+
+    // Validate inputs
     if (_titleController.text.trim().isEmpty) {
       _showSnackBar('Please enter a note title', Colors.red);
       _titleFocusNode.requestFocus();
@@ -212,11 +210,11 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
     });
 
     try {
-      print('Attempting to save note...');
+      print('=== Creating note via Provider ===');
       print('Title: ${_titleController.text.trim()}');
       print('Content length: ${_contentController.text.trim().length}');
 
-      final success = await widget.noteController.createNote(
+      final success = await noteController.createNote(
         _titleController.text.trim(),
         _contentController.text.trim(),
       );
@@ -227,18 +225,20 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
         });
 
         if (success) {
+          print('Note created successfully!');
+          print('Current notes count: ${noteController.notes.length}');
+
           _showSnackBar('Note saved successfully!', Colors.green);
 
-          // تأخير قصير لإظهار الرسالة ثم العودة للشاشة الرئيسية
+          // Wait briefly for snackbar
           await Future.delayed(const Duration(milliseconds: 500));
 
           if (mounted) {
-            // العودة للشاشة السابقة مع تمرير true لتأكيد النجاح
-            Navigator.of(context).pop(true);
+            print('Navigating back...');
+            Navigator.of(context).pop();
           }
         } else {
-          // عرض رسالة الخطأ من الـ controller
-          final errorMessage = widget.noteController.errorMessage ??
+          final errorMessage = noteController.errorMessage ??
               'Failed to save note. Please try again.';
           _showSnackBar(errorMessage, Colors.red);
           print('Failed to save note: $errorMessage');
@@ -274,7 +274,7 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
             style: const TextStyle(color: Colors.white),
           ),
           backgroundColor: backgroundColor,
-          duration: const Duration(seconds: 2), // تقليل المدة
+          duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),

@@ -1,22 +1,71 @@
 import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/note.dart';
 import '../services/note_service.dart';
 
 class NoteController extends ChangeNotifier {
   final NoteService _noteService = NoteService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   List<Note> _notes = [];
   bool _isLoading = false;
   String? _errorMessage;
   bool _isFirebaseConnected = false;
+  String? _lastLoadedUserId; // Track which user's notes are currently loaded
 
   List<Note> get notes => _notes;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get isFirebaseConnected => _isFirebaseConnected;
 
+  // Get current user ID
+  String? get currentUserId => _auth.currentUser?.uid;
+
+  NoteController() {
+    // Listen to auth state changes
+    _auth.authStateChanges().listen((User? user) {
+      print('=== Auth state changed in NoteController ===');
+      print('New user: ${user?.uid}');
+      print('Last loaded user: $_lastLoadedUserId');
+
+      if (user == null) {
+        // User signed out
+        print('User signed out, clearing notes');
+        _notes = [];
+        _lastLoadedUserId = null;
+        _errorMessage = null;
+        _isLoading = false;
+        notifyListeners();
+      } else if (_lastLoadedUserId != user.uid) {
+        // Different user signed in
+        print('Different user detected, clearing old notes');
+        _notes = [];
+        _lastLoadedUserId = user.uid;
+        _errorMessage = null;
+        notifyListeners();
+        // Load new user's notes automatically
+        loadNotes();
+      }
+    });
+  }
+
   Future<void> loadNotes() async {
     print('=== Starting loadNotes ===');
+
+    // Check if user is authenticated
+    if (currentUserId == null) {
+      print('No user authenticated, cannot load notes');
+      _notes = [];
+      _lastLoadedUserId = null;
+      notifyListeners();
+      return;
+    }
+
+    // Check if we're already loading notes for this user
+    if (_lastLoadedUserId == currentUserId && _isLoading) {
+      print('Already loading notes for this user, skipping...');
+      return;
+    }
 
     _isLoading = true;
     _errorMessage = null;
@@ -24,7 +73,6 @@ class NoteController extends ChangeNotifier {
 
     try {
       print('Testing Firebase connection...');
-
       _isFirebaseConnected = await _noteService.testConnection();
       print('Firebase connection status: $_isFirebaseConnected');
 
@@ -32,13 +80,21 @@ class NoteController extends ChangeNotifier {
         throw Exception('Unable to connect to Firebase. Please check your internet connection.');
       }
 
-      print('Connection successful, loading notes...');
-      _notes = await _noteService.getAllNotes();
+      print('Loading notes for user: $currentUserId');
+      final loadedNotes = await _noteService.getAllNotes();
 
-      print('Successfully loaded ${_notes.length} notes');
-      print('Notes loaded: ${_notes.map((n) => n.title).toList()}');
+      print('Successfully loaded ${loadedNotes.length} notes');
+      if (loadedNotes.isNotEmpty) {
+        print('First note: ${loadedNotes.first.title}');
+        print('Notes user IDs: ${loadedNotes.map((n) => n.userId).toSet()}');
+      }
 
+      // Update state
+      _notes = loadedNotes;
+      _lastLoadedUserId = currentUserId;
       _errorMessage = null;
+
+      print('Notes updated in controller. Count: ${_notes.length}');
 
     } catch (e) {
       print('=== Error in loadNotes ===');
@@ -69,7 +125,7 @@ class NoteController extends ChangeNotifier {
   Future<bool> createNote(String title, String content) async {
     print('=== Starting createNote ===');
     print('Title: "$title"');
-    print('Content: "${content.substring(0, content.length > 50 ? 50 : content.length)}..."');
+    print('Content length: ${content.length}');
 
     if (title.trim().isEmpty || content.trim().isEmpty) {
       _errorMessage = 'Title and content cannot be empty';
@@ -78,7 +134,13 @@ class NoteController extends ChangeNotifier {
       return false;
     }
 
-    // اختبار الاتصال قبل المحاولة
+    if (currentUserId == null) {
+      _errorMessage = 'User not authenticated. Please sign in again.';
+      print('Error: No authenticated user');
+      notifyListeners();
+      return false;
+    }
+
     try {
       print('Testing connection before creating note...');
       _isFirebaseConnected = await _noteService.testConnection();
@@ -91,14 +153,6 @@ class NoteController extends ChangeNotifier {
       }
 
       print('Connection test passed, proceeding with note creation...');
-    } catch (e) {
-      print('Connection test error: $e');
-      _errorMessage = 'Database connection error. Please try again.';
-      notifyListeners();
-      return false;
-    }
-
-    try {
       _clearError();
 
       final note = Note(
@@ -106,6 +160,7 @@ class NoteController extends ChangeNotifier {
         title: title.trim(),
         content: content.trim(),
         createdAt: DateTime.now(),
+        userId: currentUserId!,
       );
 
       print('Calling _noteService.addNote...');
@@ -120,13 +175,12 @@ class NoteController extends ChangeNotifier {
           title: note.title,
           content: note.content,
           createdAt: note.createdAt,
+          userId: note.userId,
         );
 
-        // إضافة الملاحظة للقائمة المحلية
         _notes.insert(0, savedNote);
         print('Note added to local list. Total notes: ${_notes.length}');
 
-        // تنبيه جميع المستمعين للتغيير
         notifyListeners();
 
         print('=== createNote completed successfully ===');
@@ -153,7 +207,9 @@ class NoteController extends ChangeNotifier {
 
     print('Processing error: $errorStr');
 
-    if (errorStr.contains('failed_precondition')) {
+    if (errorStr.contains('not authenticated')) {
+      return 'Please sign in to create notes.';
+    } else if (errorStr.contains('failed_precondition')) {
       return 'Database is being set up. This may take a few moments. Please try again.';
     } else if (errorStr.contains('permission_denied') || errorStr.contains('permission denied')) {
       return 'Permission denied. Please check your database configuration.';
@@ -195,12 +251,12 @@ class NoteController extends ChangeNotifier {
         title: title.trim(),
         content: content.trim(),
         createdAt: originalNote.createdAt,
+        userId: originalNote.userId,
       );
 
       await _noteService.updateNote(updatedNote);
       print('Note updated successfully');
 
-      // تحديث الملاحظة في القائمة المحلية
       final noteIndex = _notes.indexWhere((note) => note.id == id);
       if (noteIndex != -1) {
         _notes[noteIndex] = updatedNote;
@@ -224,7 +280,6 @@ class NoteController extends ChangeNotifier {
       await _noteService.deleteNote(id);
       print('Note deleted successfully');
 
-      // حذف الملاحظة من القائمة المحلية
       _notes.removeWhere((note) => note.id == id);
       notifyListeners();
 
@@ -238,7 +293,7 @@ class NoteController extends ChangeNotifier {
   }
 
   Future<void> refreshNotes() async {
-    print('Refreshing notes...');
+    print('=== Refreshing notes... ===');
     await loadNotes();
   }
 
@@ -259,8 +314,14 @@ class NoteController extends ChangeNotifier {
     await loadNotes();
   }
 
-  // إضافة طريقة جديدة لإشعار المستمعين يدوياً إذا احتجنا لها
-  void forceNotifyListeners() {
+  void clearNotesOnLogout() {
+    print('=== Clearing notes on logout ===');
+    _notes = [];
+    _errorMessage = null;
+    _isLoading = false;
+    _isFirebaseConnected = false;
+    _lastLoadedUserId = null;
     notifyListeners();
+    print('Notes cleared. Current count: ${_notes.length}');
   }
 }
