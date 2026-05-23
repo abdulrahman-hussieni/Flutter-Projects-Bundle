@@ -19,6 +19,21 @@ pluginManagement {
 plugins {
     id("dev.flutter.flutter-plugin-loader") version "1.0.0"
     id("com.android.application") version "8.7.3" apply false
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+    // START: FlutterFire Configuration
+    id("com.google.gms.google-services") version("4.3.15") apply false
+    // END: FlutterFire Configuration
+=======
+>>>>>>> temp-hotel/main
+=======
+>>>>>>> temp-todo/main
+=======
+>>>>>>> temp-weather/main
+=======
+>>>>>>> temp-eco/main
     id("org.jetbrains.kotlin.android") version "2.1.0" apply false
 }
 
