@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # note_app
+=======
+# hotel_booking
+>>>>>>> temp-hotel/main
 
 A new Flutter project.
 

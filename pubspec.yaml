@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 name: note_app
+=======
+name: hotel_booking
+>>>>>>> temp-hotel/main
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -34,6 +38,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+<<<<<<< HEAD
   firebase_core: ^4.1.1
   cloud_firestore: ^6.0.2
   firebase_auth: ^6.1.0
@@ -41,6 +46,8 @@ dependencies:
   provider: ^6.1.1
 
 
+=======
+>>>>>>> temp-hotel/main
 
 dev_dependencies:
   flutter_test:
@@ -53,7 +60,10 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> temp-hotel/main
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
