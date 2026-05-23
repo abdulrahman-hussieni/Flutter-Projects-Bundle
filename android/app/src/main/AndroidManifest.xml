@@ -1,10 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
 <<<<<<< HEAD
+<<<<<<< HEAD
         android:label="note_app"
 =======
         android:label="hotel_booking"
 >>>>>>> temp-hotel/main
+=======
+        android:label="todoapp"
+>>>>>>> temp-todo/main
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

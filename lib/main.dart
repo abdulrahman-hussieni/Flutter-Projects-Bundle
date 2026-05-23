@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -48,6 +49,15 @@ class NotesApp extends StatelessWidget {
 =======
 import 'package:flutter/material.dart';
 import 'wrapper.dart';
+=======
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'blocs/auth_cubit.dart';
+import 'blocs/auth_state.dart';
+import 'blocs/todo_cubit.dart';
+import 'screens/login_screen.dart';
+import 'screens/todo_screen.dart';
+>>>>>>> temp-todo/main
 
 void main() {
   runApp(const MyApp());
@@ -59,6 +69,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+<<<<<<< HEAD
       title: 'Smart Hotel Booking',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -67,6 +78,58 @@ class MyApp extends StatelessWidget {
       home: const Wrapper(),
       debugShowCheckedModeBanner: false,
 >>>>>>> temp-hotel/main
+=======
+      title: 'Todo App',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.light,
+        ),
+        useMaterial3: true,
+        appBarTheme: const AppBarTheme(
+          centerTitle: false,
+        ),
+      ),
+      home: BlocProvider(
+        create: (context) => AuthCubit(),
+        child: const AuthWrapper(),
+      ),
+    );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AuthCubit, AuthState>(
+      builder: (context, authState) {
+        switch (authState.status) {
+          case AuthStatus.initial:
+          case AuthStatus.loading:
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+
+          case AuthStatus.authenticated:
+            if (authState.userEmail != null) {
+              return BlocProvider(
+                create: (context) => TodoCubit(authState.userEmail!),
+                child: const TodoScreen(),
+              );
+            }
+            return const LoginScreen();
+
+          case AuthStatus.unauthenticated:
+          case AuthStatus.error:
+            return const LoginScreen();
+        }
+      },
+>>>>>>> temp-todo/main
     );
   }
 }

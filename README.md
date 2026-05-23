@@ -1,10 +1,26 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # note_app
 =======
 # hotel_booking
 >>>>>>> temp-hotel/main
 
 A new Flutter project.
+=======
+# Flutter ToDoApp ✅
+
+A simple ToDo app built with Flutter + Bloc + SharedPreferences.
+
+---
+
+## 📥 Download APK
+You can download the latest version of the app here:
+
+👉 [Download APK](https://github.com/abdelrahman-hossieny/Flutter_ToDoApp/releases/download/v1.0.0/app-release.apk)
+
+---
+
+>>>>>>> temp-todo/main
 
 ## Getting Started
 
