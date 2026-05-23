@@ -368,7 +368,23 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.noteApp;
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.hotelBooking;
+>>>>>>> temp-hotel/main
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.todoapp.example.todoapp;
+>>>>>>> temp-todo/main
+=======
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.weatherapp;
+>>>>>>> temp-weather/main
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.ecommerce1;
+>>>>>>> temp-eco/main
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -384,7 +400,23 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.noteApp.RunnerTests;
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.hotelBooking.RunnerTests;
+>>>>>>> temp-hotel/main
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.todoapp.example.todoapp.RunnerTests;
+>>>>>>> temp-todo/main
+=======
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.weatherapp.RunnerTests;
+>>>>>>> temp-weather/main
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.ecommerce1.RunnerTests;
+>>>>>>> temp-eco/main
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -401,7 +433,23 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.noteApp.RunnerTests;
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.hotelBooking.RunnerTests;
+>>>>>>> temp-hotel/main
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.todoapp.example.todoapp.RunnerTests;
+>>>>>>> temp-todo/main
+=======
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.weatherapp.RunnerTests;
+>>>>>>> temp-weather/main
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.ecommerce1.RunnerTests;
+>>>>>>> temp-eco/main
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
@@ -416,7 +464,23 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.noteApp.RunnerTests;
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.hotelBooking.RunnerTests;
+>>>>>>> temp-hotel/main
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.todoapp.example.todoapp.RunnerTests;
+>>>>>>> temp-todo/main
+=======
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.weatherapp.RunnerTests;
+>>>>>>> temp-weather/main
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.ecommerce1.RunnerTests;
+>>>>>>> temp-eco/main
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
@@ -547,7 +611,23 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.noteApp;
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.hotelBooking;
+>>>>>>> temp-hotel/main
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.todoapp.example.todoapp;
+>>>>>>> temp-todo/main
+=======
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.weatherapp;
+>>>>>>> temp-weather/main
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.ecommerce1;
+>>>>>>> temp-eco/main
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -569,7 +649,23 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.noteApp;
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.hotelBooking;
+>>>>>>> temp-hotel/main
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.todoapp.example.todoapp;
+>>>>>>> temp-todo/main
+=======
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.weatherapp;
+>>>>>>> temp-weather/main
+=======
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.ecommerce1;
+>>>>>>> temp-eco/main
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
