@@ -2,6 +2,7 @@
     <application
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         android:label="note_app"
 =======
         android:label="hotel_booking"
@@ -9,6 +10,9 @@
 =======
         android:label="todoapp"
 >>>>>>> temp-todo/main
+=======
+        android:label="weatherapp"
+>>>>>>> temp-weather/main
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

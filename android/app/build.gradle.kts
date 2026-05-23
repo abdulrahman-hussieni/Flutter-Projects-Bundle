@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     // START: FlutterFire Configuration
     id("com.google.gms.google-services")
     // END: FlutterFire Configuration
@@ -9,12 +10,15 @@ plugins {
 >>>>>>> temp-hotel/main
 =======
 >>>>>>> temp-todo/main
+=======
+>>>>>>> temp-weather/main
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     namespace = "com.example.note_app"
@@ -31,6 +35,11 @@ android {
     ndkVersion = "27.0.12077973"
     compileSdk = flutter.compileSdkVersion
 >>>>>>> temp-todo/main
+=======
+    namespace = "com.example.weatherapp"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+>>>>>>> temp-weather/main
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -43,6 +52,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         applicationId = "com.example.note_app"
@@ -61,6 +71,12 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
 >>>>>>> temp-todo/main
+=======
+        applicationId = "com.example.weatherapp"
+        // You can update the following values to match your application needs.
+        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        minSdk = flutter.minSdkVersion
+>>>>>>> temp-weather/main
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

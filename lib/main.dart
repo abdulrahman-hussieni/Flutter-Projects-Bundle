@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -130,6 +131,26 @@ class AuthWrapper extends StatelessWidget {
         }
       },
 >>>>>>> temp-todo/main
+=======
+import 'package:flutter/material.dart';
+import 'views/screens/home_screen.dart';
+import 'core/app_theme.dart';
+
+void main() {
+  runApp(WeatherApp());
+}
+
+class WeatherApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Weather App',
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
+      home: HomeScreen(),
+      debugShowCheckedModeBanner: false,
+>>>>>>> temp-weather/main
     );
   }
 }
